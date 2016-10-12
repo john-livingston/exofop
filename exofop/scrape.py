@@ -32,7 +32,7 @@ def get_phot(epic, verbose=True):
         return res
 
 
-def get_stellar(epic, verbose=True):
+def get_stellar(epic, verbose=True, rstar=False):
 
     PM = '&plusmn;'
 
@@ -49,6 +49,10 @@ def get_stellar(epic, verbose=True):
 
     want = 'Teff(K) log(g) [Fe/H]'.split()
     good = 'teff logg feh'.split()
+
+    if rstar:
+        want.append('Radius(R_Sun)')
+        good.append('rstar')
     if verbose:
         for g,w in zip(good, want):
             idx = keys.index(w)
