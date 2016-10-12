@@ -22,11 +22,11 @@ def get_phot(epic, verbose=True):
         if '&plusmn; ' in vals:
             if verbose:
                 print band, '=', ', '.join(vals.split(PM))
-            res[band] = vals.split(PM)
+            res[band] = map(float, vals.split(PM))
         else:
             if verbose:
                 print band, '=', vals
-            res[band] = vals
+            res[band] = float(vals)
 
     if not verbose:
         return res
@@ -47,11 +47,12 @@ def get_stellar(epic, verbose=True):
     line = table.findAll('tr')[2]
     vals = [th.text for th in line.findAll('td')]
 
+    want = 'Teff(K) log(g) [Fe/H]'.split()
+    good = 'teff logg feh'.split()
     if verbose:
-        want = 'Teff(K) log(g) [Fe/H]'.split()
-        good = 'teff logg feh'.split()
         for g,w in zip(good, want):
             idx = keys.index(w)
             print g, '=', ', '.join(vals[idx].split(PM))
     else:
-        return {k:vals[keys.index(w)].split(PM) for k,w in zip(good, want)}
+        return {k:map(float, vals[keys.index(w)].split(PM)) \
+            for k,w in zip(good, want)}
