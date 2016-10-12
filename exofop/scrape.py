@@ -18,6 +18,15 @@ def get_phot(epic, verbose=True):
         band = td[0].text
         if band == 'Kep':
             band = 'Kepler'
+        elif band == 'WISE 3.4 micron':
+            band = 'W1'
+        elif band == 'WISE 4.6 micron':
+            band = 'W2'
+        elif band == 'WISE 12 micron':
+            band = 'W3'
+        elif band == 'WISE 22 micron':
+            band = 'W4'
+
         vals = td[1].text
         if '&plusmn; ' in vals:
             if verbose:
