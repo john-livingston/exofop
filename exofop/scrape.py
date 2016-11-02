@@ -3,7 +3,7 @@ import urllib2
 from BeautifulSoup import BeautifulSoup
 
 
-def get_phot(epic, verbose=True):
+def get_phot(epic, verbose=True, savefp=None, return_str=False):
 
     PM = '&plusmn; '
 
@@ -13,6 +13,7 @@ def get_phot(epic, verbose=True):
     table = soup.find(id='myTable1')
 
     res = {}
+    out_str = ''
     for line in table.findAll('tr')[2:]:
         td = line.findAll('td')
         band = td[0].text
@@ -29,19 +30,28 @@ def get_phot(epic, verbose=True):
 
         vals = td[1].text
         if '&plusmn; ' in vals:
+            line_str = ' '.join([band, '=', ', '.join(vals.split(PM))])
             if verbose:
-                print band, '=', ', '.join(vals.split(PM))
+                print line_str
             res[band] = map(float, vals.split(PM))
         else:
+            line_str = ' '.join([band, '=', vals])
             if verbose:
-                print band, '=', vals
+                print line_str
             res[band] = float(vals)
+        out_str += line_str+'\n'
 
-    if not verbose:
+    if savefp:
+        with open(savefp, 'w') as f:
+            f.write(out_str)
+
+    if return_str:
+        return out_str
+    elif not verbose:
         return res
 
 
-def get_stellar(epic, verbose=True, rstar=False):
+def get_stellar(epic, verbose=True, rstar=False, savefp=None, return_str=False):
 
     PM = '&plusmn;'
 
@@ -62,10 +72,22 @@ def get_stellar(epic, verbose=True, rstar=False):
     if rstar:
         want.append('Radius(R_Sun)')
         good.append('rstar')
-    if verbose:
-        for g,w in zip(good, want):
-            idx = keys.index(w)
-            print g, '=', ', '.join(vals[idx].split(PM))
-    else:
-        return {k:map(float, vals[keys.index(w)].split(PM)) \
+
+    out_str = ''
+    for g,w in zip(good, want):
+        idx = keys.index(w)
+        line_str = ' '.join([g, '=', ', '.join(vals[idx].split(PM))])
+        if verbose:
+            print line_str
+        out_str += line_str+'\n'
+
+    if savefp:
+        with open(savefp, 'w') as f:
+            f.write(out_str)
+
+    if return_str:
+        return out_str
+    elif not verbose:
+        res = {k:map(float, vals[keys.index(w)].split(PM)) \
             for k,w in zip(good, want)}
+        return res
