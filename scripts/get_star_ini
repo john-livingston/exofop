@@ -8,13 +8,21 @@ import exofop
 parser = argparse.ArgumentParser(description="Make a star.ini file for input to"
                                  " VESPA by scraping values from ExoFOP K2")
 parser.add_argument('epic', help='EPIC ID of target star', type=int)
+parser.add_argument('-r', '--rstar', help='include the stellar radius in output',
+    dest='rstar', action='store_true')
+parser.add_argument('-s', '--stdout', help='just print to stdout',
+    dest='stdout', action='store_true')
 parser.add_argument('-o', '--outfile', help='save to outfile',
     type=str, default='star.ini')
+parser.set_defaults(rstar=False, stdout=False)
 args = parser.parse_args()
 
-
-with open(args.outfile, 'w') as f:
-    s1 = exofop.get_phot(args.epic, verbose=False, return_str=True)
-    f.write(s1)
-    s2 = exofop.get_stellar(args.epic, verbose=False, return_str=True)
-    f.write(s2)
+if args.stdout:
+    exofop.get_phot(args.epic, verbose=True, return_str=False)
+    exofop.get_stellar(args.epic, rstar=args.rstar, verbose=True, return_str=False)
+else:
+    with open(args.outfile, 'w') as f:
+        s1 = exofop.get_phot(args.epic, verbose=False, return_str=True)
+        f.write(s1)
+        s2 = exofop.get_stellar(args.epic, rstar=args.rstar, verbose=False, return_str=True)
+        f.write(s2)
