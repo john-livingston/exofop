@@ -31,13 +31,9 @@ def get_phot(epic, verbose=True, savefp=None, return_str=False):
         vals = td[1].text
         if '&plusmn; ' in vals:
             line_str = ' '.join([band, '=', ', '.join(vals.split(PM))])
-            if verbose:
-                print line_str
             res[band] = map(float, vals.split(PM))
         else:
             line_str = ' '.join([band, '=', vals])
-            if verbose:
-                print line_str
             res[band] = float(vals)
         out_str += line_str+'\n'
 
@@ -45,9 +41,11 @@ def get_phot(epic, verbose=True, savefp=None, return_str=False):
         with open(savefp, 'w') as f:
             f.write(out_str)
 
+    if verbose:
+        print out_str
     if return_str:
         return out_str
-    elif not verbose:
+    else:
         return res
 
 
@@ -67,7 +65,7 @@ def get_stellar(epic, verbose=True, rstar=False, savefp=None, return_str=False):
     vals = [th.text for th in line.findAll('td')]
 
     want = 'Teff(K) log(g) [Fe/H]'.split()
-    good = 'teff logg feh'.split()
+    good = 'Teff logg feh'.split()
 
     if rstar:
         want.append('Radius(R_Sun)')
@@ -77,17 +75,17 @@ def get_stellar(epic, verbose=True, rstar=False, savefp=None, return_str=False):
     for g,w in zip(good, want):
         idx = keys.index(w)
         line_str = ' '.join([g, '=', ', '.join(vals[idx].split(PM))])
-        if verbose:
-            print line_str
         out_str += line_str+'\n'
 
     if savefp:
         with open(savefp, 'w') as f:
             f.write(out_str)
 
+    if verbose:
+        print out_str
     if return_str:
         return out_str
-    elif not verbose:
+    else:
         res = {k:map(float, vals[keys.index(w)].split(PM)) \
             for k,w in zip(good, want)}
         return res

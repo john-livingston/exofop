@@ -18,8 +18,8 @@ parser.set_defaults(rstar=False, stdout=False)
 args = parser.parse_args()
 
 if args.stdout:
-    exofop.get_phot(args.epic, verbose=True, return_str=False)
-    exofop.get_stellar(args.epic, rstar=args.rstar, verbose=True, return_str=False)
+    # r = exofop.get_phot(args.epic, verbose=True, return_str=False)
+    r = exofop.get_stellar(args.epic, rstar=args.rstar, verbose=False, return_str=True)
 else:
     with open(args.outfile, 'w') as f:
         s1 = exofop.get_phot(args.epic, verbose=False, return_str=True)
