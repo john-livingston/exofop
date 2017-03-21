@@ -47,8 +47,8 @@ def get_phot(epic, verbose=True, savefp=None, return_str=False):
 
     if return_str:
         return out_str
-    elif not verbose:
-        return res
+
+    return res
 
 
 def get_stellar(epic, verbose=True, rstar=False, savefp=None, return_str=False):
@@ -87,7 +87,8 @@ def get_stellar(epic, verbose=True, rstar=False, savefp=None, return_str=False):
 
     if return_str:
         return out_str
-    elif not verbose:
-        res = {k:map(float, vals[keys.index(w)].split(PM)) \
-            for k,w in zip(good, want)}
-        return res
+
+    res = {k:map(float, vals[keys.index(w)].split(PM)) \
+        for k,w in zip(good, want)}
+
+    return res
