@@ -1,1 +1,1 @@
-from scrape import get_phot, get_stellar
+from .scrape import get_phot, get_stellar

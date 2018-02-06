@@ -1,14 +1,14 @@
 import sys
-import urllib2
-from BeautifulSoup import BeautifulSoup
+from urllib.request import urlopen
+from bs4 import BeautifulSoup
 
 
 def get_phot(epic, verbose=True, savefp=None, return_str=False):
 
-    PM = '&plusmn; '
+    PM = '±'
 
     url = 'https://exofop.ipac.caltech.edu/k2/edit_target.php?id={}'.format(epic)
-    soup = BeautifulSoup(urllib2.urlopen(url).read())
+    soup = BeautifulSoup(urlopen(url).read(), "html5lib")
 
     table = soup.find(id='myTable1')
 
@@ -29,9 +29,10 @@ def get_phot(epic, verbose=True, savefp=None, return_str=False):
             band = 'W4'
 
         vals = td[1].text
-        if '&plusmn; ' in vals:
-            line_str = ' '.join([band, '=', ', '.join(vals.split(PM))])
-            res[band] = map(float, vals.split(PM))
+        # import pdb; pdb.set_trace()
+        if PM in vals:
+            line_str = ' '.join([band, '=', ','.join(vals.split(PM))])
+            res[band] = list(map(float, vals.split(PM)))
         else:
             line_str = ' '.join([band, '=', vals])
             res[band] = float(vals)
@@ -42,7 +43,7 @@ def get_phot(epic, verbose=True, savefp=None, return_str=False):
             f.write(out_str)
 
     if verbose:
-        print out_str
+        print(out_str)
     if return_str:
         return out_str
 
@@ -51,10 +52,10 @@ def get_phot(epic, verbose=True, savefp=None, return_str=False):
 
 def get_stellar(epic, verbose=True, rstar=False, savefp=None, return_str=False):
 
-    PM = '&plusmn;'
+    PM = '±'
 
     url = 'https://exofop.ipac.caltech.edu/k2/edit_target.php?id={}'.format(epic)
-    soup = BeautifulSoup(urllib2.urlopen(url).read())
+    soup = BeautifulSoup(urlopen(url).read(), "html5lib")
 
     table = soup.find(id='myTable2')
 
@@ -74,7 +75,7 @@ def get_stellar(epic, verbose=True, rstar=False, savefp=None, return_str=False):
     out_str = ''
     for g,w in zip(good, want):
         idx = keys.index(w)
-        line_str = ' '.join([g, '=', ', '.join(vals[idx].split(PM))])
+        line_str = ' '.join([g, '=', ','.join(vals[idx].split(PM))])
         out_str += line_str+'\n'
 
     if savefp:
@@ -82,11 +83,11 @@ def get_stellar(epic, verbose=True, rstar=False, savefp=None, return_str=False):
             f.write(out_str)
 
     if verbose:
-        print out_str
+        print(out_str)
     if return_str:
         return out_str
 
-    res = {k:map(float, vals[keys.index(w)].split(PM)) \
+    res = {k:list(map(float, vals[keys.index(w)].split(PM))) \
         for k,w in zip(good, want)}
 
     return res

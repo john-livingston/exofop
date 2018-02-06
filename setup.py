@@ -51,5 +51,5 @@ setup(
         'Topic :: Scientific/Engineering',
         'Programming Language :: Python'
         ],
-    install_requires = ['BeautifulSoup'],
+    install_requires = ['BeautifulSoup4'],
 )
