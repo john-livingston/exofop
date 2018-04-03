@@ -1,5 +1,10 @@
 import sys
-from urllib.request import urlopen
+try:
+    # python 3
+    from urllib.request import urlopen
+except ImportError:
+    # Python 2
+    from urllib2 import urlopen
 from bs4 import BeautifulSoup
 
 
@@ -91,3 +96,36 @@ def get_stellar(epic, verbose=True, rstar=False, savefp=None, return_str=False):
         for k,w in zip(good, want)}
 
     return res
+
+
+baseurl = "https://exofop.ipac.caltech.edu/"
+
+def get_all_links(epic,mission='k2'):
+    webpage = baseurl+mission+"/edit_target.php?id={}".format(epic)
+
+    html_page = urlopen(webpage)
+    html = urlopen(webpage)
+    bsObj = BeautifulSoup(html.read(), "lxml");
+
+    links = []
+    for link in bsObj.find_all('a'):
+        links.append(link.get('href'))
+
+    if len(links) == 0:
+        print('No links fetched. Check epic number.\n')
+        sys.exit()
+    return links
+
+def get_specific_ext(links,ext='csv',mission='k2'):
+    wanted = []
+    for link in links:
+        try:
+            if link.split('.')[-1] == ext:
+                wanted.append(baseurl+mission+'/'+link)
+        except:
+            pass
+
+    if len(wanted) == 0:
+        print('No links fetched with file extension={}\n'.format(ext))
+        sys.exit()
+    return wanted
