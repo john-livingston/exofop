@@ -2,9 +2,8 @@
 
 import argparse
 import sys
-#sys.path.append('../exofop')
 import exofop
-from tqdm import tqdm
+# from tqdm import tqdm
 import os
 
 parser = argparse.ArgumentParser(description="""
@@ -16,31 +15,38 @@ parser.add_argument('-e', '--ext', help='file extension (default=csv)',
     type=str, default='csv')
 parser.add_argument('-m', '--mission', help='mission (default=k2)',
     type=str, default='k2')
-parser.add_argument('-s', '--save', help='save to local (default=False)',
+parser.add_argument('-s', '--save', help='save file of a given extension to local (default=False)',
+    action='store_true', default=False)
+parser.add_argument('-S', '--save_all', help='save all files (csv, fits, dat, png, pdf) to local (default=False)',
     action='store_true', default=False)
 
 #parser.set_defaults(batch_download=False)
+
+extensions = 'csv fits dat png pdf'.split(' ')
 
 args = parser.parse_args()
 epic = args.epic
 ext  = args.ext
 save = args.save
+save_all = args.save_all
 mission = args.mission
 
 links  = exofop.get_all_links(epic,mission=mission)
-wanted = exofop.get_specific_ext(links,ext=ext,mission=mission)
 
 if save:
-    epic = str(epic)
-    if not os.path.exists(epic):
-        os.makedirs(epic)
+    wanted = exofop.get_specific_ext(links,ext=ext,mission=mission)
+    exofop.save_to_file(epic, wanted, ext)
 
-    print('Saving files ...\n')
-    for url in tqdm(wanted):
-        #save: e.g. epic/epic.csv
-        destination = os.path.join(epic,epic+'.'+ext)
-        exofop.save_to_file(url,destination)
+if save_all:
+    for ext in extensions:
+        try:
+            wanted = exofop.get_specific_ext(links,ext=ext,mission=mission)
+            exofop.save_to_file(epic, wanted, ext)
+        except:
+            print('No .{} files found.\n'.format(ext))
 else:
     print('Fetched urls:\n')
-    for i,url in enumerate(wanted):
-        print('{}:  {}\n'.format(i+1,url))
+    for j,url in enumerate(wanted):
+        print('{}:  {}\n'.format(j+1,url))
+
+print('\n---Done---\n')
