@@ -33,16 +33,16 @@ setup(
     name='exofop',
     packages =['exofop'],
     version="0.1.1",
-    author='John Livingston',
-    author_email = 'jliv84@gmail.com',
-    url = 'https://github.com/john-livingston/sxp',
+    author='John Livingston and Jerome de Leon',
+    author_email = 'jpdeleon@astron.s.u-tokyo.ac.jp',
+    url = 'https://github.com/jpdeleon/exofop',
     license = ['GNU GPLv3'],
     description ='Scraper for the ExoFOP K2 community portal website',
     long_description=rd("README.md") + "\n\n"
                     + "---------\n\n",
     package_dir={"exofop": "exofop"},
     package_data={"exofop": []},
-    scripts=['scripts/get_star_ini'],
+    scripts=['scripts/get_star_ini','scripts/get_links'],
     include_package_data=True,
     keywords=[],
     classifiers = [
@@ -51,5 +51,5 @@ setup(
         'Topic :: Scientific/Engineering',
         'Programming Language :: Python'
         ],
-    install_requires = ['BeautifulSoup4'],
+    install_requires = ['BeautifulSoup4','urllib3'],
 )

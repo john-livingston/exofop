@@ -1,0 +1,25 @@
+#!/usr/bin/env python
+
+import argparse
+import sys
+import exofop
+
+parser = argparse.ArgumentParser(description="""
+                fetch links from exofop given epic and file extension""",
+                usage='use "%(prog)s --help" for more information',
+                formatter_class=argparse.RawTextHelpFormatter)
+parser.add_argument('--epic', help='EPIC number',
+    type=str)
+parser.add_argument('--ext', help='file extension (default=csv)',
+    type=str, default='csv')
+parser.add_argument('--mission', help='mission (default=k2)',
+    type=str, default='k2')
+
+args = parser.parse_args()
+epic = args.epic
+ext  = args.ext
+mission = args.mission
+
+links  = exofop.get_all_links(epic,mission=mission)
+wanted = exofop.get_specific_ext(links,ext=ext,mission=mission)
+[print('{}\n'.format(i)) for i in wanted]
