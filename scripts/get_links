@@ -30,14 +30,20 @@ ext  = args.ext
 save = args.save
 save_all = args.save_all
 mission = args.mission
+mission = mission.lower()
 
 links  = exofop.get_all_links(epic,mission=mission)
 
 if save:
+    # if s flag supplied
     wanted = exofop.get_specific_ext(links,ext=ext,mission=mission)
     exofop.save_to_file(epic, wanted, ext)
+else:
+    # if no flags supplied
+    wanted = exofop.get_specific_ext(links,ext=ext,mission=mission)
 
 if save_all:
+    # if S flag supplied
     for ext in extensions:
         try:
             wanted = exofop.get_specific_ext(links,ext=ext,mission=mission)

@@ -104,16 +104,20 @@ baseurl = "https://exofop.ipac.caltech.edu/"
 def get_all_links(epic,mission='k2'):
     webpage = baseurl+mission+"/edit_target.php?id={}".format(epic)
 
-    html_page = urlopen(webpage)
-    html = urlopen(webpage)
-    bsObj = BeautifulSoup(html.read(), "lxml");
-
+    try:
+        html_page = urlopen(webpage)
+        html = urlopen(webpage)
+        bsObj = BeautifulSoup(html.read(), "lxml");
+    except Exception as e:
+        print('Error: {}\n{} does not exist!\n'.format(e,webpage))
+        sys.exit()
+        
     links = []
     for link in bsObj.find_all('a'):
         links.append(link.get('href'))
 
     if len(links) == 0:
-        print('No links fetched. Check epic number.\n')
+        print('No links fetched. Check EPIC number.\n')
         sys.exit()
     return links
 
@@ -144,14 +148,15 @@ def save_to_file(epic, urls, ext):
     i =0
     for url in tqdm(urls):
         #save: e.g. epic/epic.csv
-        if len(urls) > 1:
-            fname = epic+'_'+str(i)+'.'+ext
-        else:
-            fname = epic+'.'+ext
+        # if len(urls) > 1:
+        #     fname = epic+'_'+str(i)+'.'+ext
+        # else:
+        #     fname = epic+'.'+ext
+        fname = url.split('/')[-1]
         destination = os.path.join(subfolder,fname)
         try:
             urlretrieve(url, destination)
-            print('Saved: {}\n'.format(url))
+            #print('Saved: {}\n'.format(url))
         except Exception as e:
             print('Error: {}\nNot saved: {}\n'.format(e,url))
         i+=1
