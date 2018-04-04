@@ -51,5 +51,5 @@ setup(
         'Topic :: Scientific/Engineering',
         'Programming Language :: Python'
         ],
-    install_requires = ['BeautifulSoup4','urllib3','lxml'],
+    install_requires = ['BeautifulSoup4','urllib3','lxml','tqdm'],
 )

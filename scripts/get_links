@@ -2,24 +2,45 @@
 
 import argparse
 import sys
+#sys.path.append('../exofop')
 import exofop
+from tqdm import tqdm
+import os
 
 parser = argparse.ArgumentParser(description="""
                 fetch links from exofop given epic and file extension""",
                 usage='use "%(prog)s --help" for more information',
                 formatter_class=argparse.RawTextHelpFormatter)
-parser.add_argument('--epic', help='EPIC number',
-    type=str)
-parser.add_argument('--ext', help='file extension (default=csv)',
+parser.add_argument('epic', help='EPIC ID of target star (e.g. 211319617)', type=int)
+parser.add_argument('-e', '--ext', help='file extension (default=csv)',
     type=str, default='csv')
-parser.add_argument('--mission', help='mission (default=k2)',
+parser.add_argument('-m', '--mission', help='mission (default=k2)',
     type=str, default='k2')
+parser.add_argument('-s', '--save', help='save to local (default=False)',
+    action='store_true', default=False)
+
+#parser.set_defaults(batch_download=False)
 
 args = parser.parse_args()
 epic = args.epic
 ext  = args.ext
+save = args.save
 mission = args.mission
 
 links  = exofop.get_all_links(epic,mission=mission)
 wanted = exofop.get_specific_ext(links,ext=ext,mission=mission)
-[print('{}\n'.format(i)) for i in wanted]
+
+if save:
+    epic = str(epic)
+    if not os.path.exists(epic):
+        os.makedirs(epic)
+
+    print('Saving files ...\n')
+    for url in tqdm(wanted):
+        #save: e.g. epic/epic.csv
+        destination = os.path.join(epic,epic+'.'+ext)
+        exofop.save_to_file(url,destination)
+else:
+    print('Fetched urls:\n')
+    for i,url in enumerate(wanted):
+        print('{}:  {}\n'.format(i+1,url))

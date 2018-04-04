@@ -1,10 +1,10 @@
 import sys
 try:
     # python 3
-    from urllib.request import urlopen
+    from urllib.request import urlopen, urlretrieve
 except ImportError:
     # Python 2
-    from urllib2 import urlopen
+    from urllib2 import urlopen, urlretrieve
 from bs4 import BeautifulSoup
 
 
@@ -129,3 +129,11 @@ def get_specific_ext(links,ext='csv',mission='k2'):
         print('No links fetched with file extension={}\n'.format(ext))
         sys.exit()
     return wanted
+
+def save_to_file(url, destination):
+    try:
+        urlretrieve(url, destination)
+        print('Saved: {}\n'.format(url))
+    except Exception as e:
+        print('Not saved: {}\n'.format(url))
+    return None
