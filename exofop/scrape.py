@@ -1,7 +1,13 @@
 import sys
-from urllib.request import urlopen
+try:
+    # python 3
+    from urllib.request import urlopen, urlretrieve
+except ImportError:
+    # Python 2
+    from urllib2 import urlopen, urlretrieve
 from bs4 import BeautifulSoup
-
+from tqdm import tqdm
+import os
 
 def get_phot(epic, verbose=True, savefp=None, return_str=False):
 
@@ -97,3 +103,68 @@ def get_stellar(epic, verbose=True, rstar=False, savefp=None, return_str=False):
         for k,w in zip(good, want)}
 
     return res
+
+
+baseurl = "https://exofop.ipac.caltech.edu/"
+
+def get_all_links(epic,mission='k2'):
+    webpage = baseurl+mission+"/edit_target.php?id={}".format(epic)
+
+    try:
+        html_page = urlopen(webpage)
+        html = urlopen(webpage)
+        bsObj = BeautifulSoup(html.read(), "lxml");
+    except Exception as e:
+        print('Error: {}\n{} does not exist!\n'.format(e,webpage))
+        sys.exit()
+        
+    links = []
+    for link in bsObj.find_all('a'):
+        links.append(link.get('href'))
+
+    if len(links) == 0:
+        print('No links fetched. Check EPIC number.\n')
+        sys.exit()
+    return links
+
+def get_specific_ext(links,ext='csv',mission='k2'):
+    wanted = []
+    for link in links:
+        try:
+            if link.split('.')[-1] == ext:
+                wanted.append(baseurl+mission+'/'+link)
+        except:
+            pass
+
+    if len(wanted) == 0:
+        print('No links fetched with file extension={}\n'.format(ext))
+        sys.exit()
+    return wanted
+
+def save_to_file(epic, urls, ext):
+    epic = str(epic)
+    if not os.path.exists(epic):
+        os.makedirs(epic)
+
+    subfolder=os.path.join(epic,ext)
+    if not os.path.exists(subfolder):
+        os.makedirs(subfolder)
+
+    print('\n----------Saving .{} files----------\n'.format(ext))
+    i =0
+    for url in tqdm(urls):
+        #save: e.g. epic/epic.csv
+        # if len(urls) > 1:
+        #     fname = epic+'_'+str(i)+'.'+ext
+        # else:
+        #     fname = epic+'.'+ext
+        fname = url.split('/')[-1]
+        destination = os.path.join(subfolder,fname)
+        try:
+            urlretrieve(url, destination)
+            #print('Saved: {}\n'.format(url))
+        except Exception as e:
+            print('Error: {}\nNot saved: {}\n'.format(e,url))
+        i+=1
+
+    return None
