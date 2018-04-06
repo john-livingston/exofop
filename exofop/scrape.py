@@ -9,7 +9,7 @@ from bs4 import BeautifulSoup
 from tqdm import tqdm
 import os
 
-def get_phot(epic, verbose=True, savefp=None, return_str=False):
+def get_phot(epic, verbose=False, savefp=None, return_str=False):
 
     PM = '±'
 
@@ -56,7 +56,7 @@ def get_phot(epic, verbose=True, savefp=None, return_str=False):
     return res
 
 
-def get_stellar(epic, verbose=True, rstar=False, savefp=None, return_str=False):
+def get_stellar(epic, verbose=False, rstar=True, savefp=None, return_str=False):
 
     """
     defaults to Huber et al. if multiple rows exist
@@ -105,9 +105,46 @@ def get_stellar(epic, verbose=True, rstar=False, savefp=None, return_str=False):
     return res
 
 
-baseurl = "https://exofop.ipac.caltech.edu/"
+def get_planets(epic):
+
+    """
+    epic : EPIC ID
+
+    returns: cand, t0, per, d_mmag, d_ppm, tdur, rp
+    """
+
+    PM = '±'
+
+    url = 'https://exofop.ipac.caltech.edu/k2/edit_target.php?id={}'.format(epic)
+    soup = BeautifulSoup(urlopen(url).read(), "html5lib")
+    table = soup.find(id='myTable3')
+
+    planets = {}
+    for tab in table.findAll('tr')[2:]:
+        res = [td.text.strip() for td in tab.findAll('td')[:7]]
+        cand = res[0]
+        keys = 't0, per, d_mmag, d_ppm, tdur, rp'.split(', ')
+        d = {}
+        for k,v in zip(keys,res[1:]):
+            if v is not '':
+                if PM not in v:
+                    d[k] = float(v)
+                else:
+                    # d[k] = list(map(float, v.split(PM)))
+                    mu, sig = map(float, v.split(PM))
+                    d[k] = mu
+                    d[k+'_err'] = sig
+            else:
+                d[k] = None
+        planets[cand] = d
+
+    return planets
+
 
 def get_all_links(epic,mission='k2'):
+
+    baseurl = "https://exofop.ipac.caltech.edu/"
+
     webpage = baseurl+mission+"/edit_target.php?id={}".format(epic)
 
     try:
@@ -117,7 +154,7 @@ def get_all_links(epic,mission='k2'):
     except Exception as e:
         print('Error: {}\n{} does not exist!\n'.format(e,webpage))
         sys.exit()
-        
+
     links = []
     for link in bsObj.find_all('a'):
         links.append(link.get('href'))
@@ -128,6 +165,9 @@ def get_all_links(epic,mission='k2'):
     return links
 
 def get_specific_ext(links,ext='csv',mission='k2'):
+
+    baseurl = "https://exofop.ipac.caltech.edu/"
+
     wanted = []
     for link in links:
         try:
@@ -146,7 +186,7 @@ def save_to_file(epic, urls, ext):
     if not os.path.exists(epic):
         os.makedirs(epic)
 
-    subfolder=os.path.join(epic,ext)
+    subfolder = os.path.join(epic,ext)
     if not os.path.exists(subfolder):
         os.makedirs(subfolder)
 
