@@ -29,7 +29,7 @@ def get_phot(epic, verbose=True, savefp=None, return_str=False):
             band = 'W4'
 
         vals = td[1].text
-        # import pdb; pdb.set_trace()
+
         if PM in vals:
             line_str = ' '.join([band, '=', ','.join(vals.split(PM))])
             res[band] = list(map(float, vals.split(PM)))
@@ -52,6 +52,10 @@ def get_phot(epic, verbose=True, savefp=None, return_str=False):
 
 def get_stellar(epic, verbose=True, rstar=False, savefp=None, return_str=False):
 
+    """
+    defaults to Huber et al. if multiple rows exist
+    """
+
     PM = '±'
 
     url = 'https://exofop.ipac.caltech.edu/k2/edit_target.php?id={}'.format(epic)
@@ -62,7 +66,9 @@ def get_stellar(epic, verbose=True, rstar=False, savefp=None, return_str=False):
     line = table.findAll('tr')[1]
     keys = [th.text for th in line.findAll('th')]
 
-    line = table.findAll('tr')[2]
+    for line in table.findAll('tr')[2:]:
+        if 'Huber' in line.findAll('td')[-3].text:
+            break
     vals = [th.text for th in line.findAll('td')]
 
     want = 'Teff(K) log(g) [Fe/H]'.split()
