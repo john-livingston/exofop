@@ -1,10 +1,12 @@
+# coding: utf-8
 import sys
 try:
     # python 3
     from urllib.request import urlopen, urlretrieve
 except ImportError:
     # Python 2
-    from urllib2 import urlopen, urlretrieve
+    from urllib import urlretrieve
+    from urllib2 import urlopen
 from bs4 import BeautifulSoup
 from tqdm import tqdm
 import os
